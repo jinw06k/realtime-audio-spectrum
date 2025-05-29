@@ -29,7 +29,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 FS          = 48000     # mic sample rate in Hz
 BLOCKSIZE   = 2048
-HISTORY_SEC = 10        # adjust to change history length
+HISTORY_SEC = 10       # adjust to change history length
 
 class AudioStream:
     def __init__(self, device_idx: int, q: queue.Queue):
@@ -129,7 +129,11 @@ class RealTimeAudioApp:
                     self.window["FMAX"].update(value=values["FMIN"])
 
             if event == "START_STOP":
-                (self._start_stream if not self.running else self._stop_stream)(values)
+                if not self.running:
+                    self._start_stream(values)
+                else:
+                    self._stop_stream()
+
 
             if self.running:
                 self._collect_audio()
@@ -174,7 +178,7 @@ class RealTimeAudioApp:
         elif mode == "Waveform":
             self._plot_waveform()
         else:
-            self._plot_spectrogram()
+            self._plot_spectrogram(values)
 
         self.canvas_agg.draw()
 
@@ -200,7 +204,7 @@ class RealTimeAudioApp:
         self.ax.yaxis.set_minor_locator(matplotlib.ticker.AutoMinorLocator(5))
         
         self.ax.set(xlabel="Frequency (Hz)", ylabel="Magnitude (dB)",
-                    title="FFT", xlim=(fmin, fmax), ylim=(-120, 0))
+                    title="FFT", xlim=(fmin, fmax), ylim=(-120, 20))
 
     def _plot_waveform(self):
         if not self.history:
@@ -213,15 +217,27 @@ class RealTimeAudioApp:
                     xlim=(t[0], t[-1]), ylim=(-1, 1))
         self.ax.grid(True)
 
-    def _plot_spectrogram(self):
+    def _plot_spectrogram(self, values):
         if len(self.history) < FS:
             return
         data = np.array(self.history)
+
+        fmin = 0
+        fmax = FS//2
+        if values:
+            fmin = max(0, values["FMIN"])
+            fmax = min(FS//2, values["FMAX"])
+        
         Pxx, freqs, bins, im = self.ax.specgram(
             data, NFFT=1024, Fs=FS, noverlap=512, cmap="magma"
         )
+        
+        title = "Spectrogram"
+        if values and (values["FMIN"] > 0 or values["FMAX"] < FS//2):
+            title += f" ({int(fmin)}-{int(fmax)} Hz)"
+        
         self.ax.set(xlabel="Time (s)", ylabel="Frequency (Hz)",
-                    title="Spectrogram", ylim=(0, FS//2))
+                    title=title, ylim=(fmin, fmax))
         self.fig.colorbar(im, ax=self.ax, label="Power/Frequency (dB/Hz)")
 
 if __name__ == "__main__":
