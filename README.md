@@ -2,6 +2,8 @@
 # Real-Time Audio Analyzer
 A Python app for capturing and visualizing real-time audio input using Fast Fourier Transform (FFT), waveform plots, and spectrograms. 
 
+- last updated May. 30. 2025: added WAV file support
+
 ## Features
 
 - 🎤 **Input Device Selector** – Choose any microphone connected to your system.
@@ -11,6 +13,7 @@ A Python app for capturing and visualizing real-time audio input using Fast Four
   - Spectrogram: Rolling time-frequency analysis
 - 🎚️ **Frequency Range Sliders** – Set min and max Hz to zoom into specific bands in the FFT view
 - ⏯️ **Start/Stop Button** – Toggle audio streaming on the fly
+- 🆕 **Add WAV files** - Add any WAV files into wav_files and analyze pre-recorded audio
 
 ## Installation
 
