@@ -25,7 +25,7 @@ conda activate audio-env
 
 ### 2. Install dependencies:
 ```bash
-conda install -c conda-forge numpy matplotlib python-sounddevice PySimpleGUI
+3. conda install -c conda-forge numpy matplotlib python-sounddevice PySimpleGUI scipy
 ```
 
 ## Running the App
